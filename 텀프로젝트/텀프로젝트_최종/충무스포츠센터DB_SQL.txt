@@ -1,0 +1,211 @@
+//2017112085 이유경
+
+//강사 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`teacher` (
+  `teacherid` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(3) NOT NULL,
+  `gender` CHAR(3) NOT NULL,
+  `sports` VARCHAR(40) NOT NULL,
+  `birth` INT(10) NOT NULL,
+  `phonenum` INT(20) NOT NULL,
+  `salary` INT(10) NOT NULL,
+  PRIMARY KEY (teacherid, name, sports));
+
+//담당 프로그램 테이블 생성(프로그램 중복값)
+CREATE TABLE `Chungmu-sportscenter`.`program_tch` (
+  `id_tch` VARCHAR(10) NOT NULL,
+  `id_pro` CHAR(10) NOT NULL,
+  PRIMARY KEY (`id_tch`, `id_pro`),
+  CONSTRAINT `fk_program_tch_tch`
+    FOREIGN KEY (`id_tch`)
+    REFERENCES `Chungmu-sportscenter`.`teacher` (`teacherid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_program_tch_pro`
+    FOREIGN KEY (id_pro)
+    REFERENCES `Chungmu-sportscenter`.`program` (program_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+//회원 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`customer` (
+  `customer_id` VARCHAR(20) NOT NULL,
+  `name` VARCHAR(10) NOT NULL,
+  `gender` CHAR(3) NOT NULL,
+  `birth` INT(10) NOT NULL,
+  `phonenum` INT(20) NOT NULL,
+  `address` VARCHAR(100) NOT NULL,
+  `program` VARCHAR(50) NOT NULL,
+  `pro_num` INT(2) NOT NULL,
+  PRIMARY KEY (customer_id, name));
+
+// 수강프로그램 테이블 생성(프로그램 중복값)
+CREATE TABLE `Chungmu-sportscenter`.`program_cus` (
+  `id_cus` VARCHAR(20) NOT NULL,
+  `id_pro` CHAR(10) NOT NULL,
+  PRIMARY KEY (`id_cus`, `id_pro`),
+  CONSTRAINT `fk_program_cus_1`
+    FOREIGN KEY (`id_cus`)
+    REFERENCES `Chungmu-sportscenter`.`customer` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_program_cus_2`
+    FOREIGN KEY (id_pro)
+    REFERENCES `Chungmu-sportscenter`.`program` (program_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+//고객센터 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`customer_service` (
+  `cs_id` CHAR(10) NOT NULL,
+  `name` CHAR(10) NOT NULL,
+  `gender` CHAR(3) NOT NULL,
+  `birth` INT(10) NOT NULL,
+  `phonenum` INT(15) NOT NULL,
+  `salary` INT(10) NOT NULL,
+  PRIMARY KEY (`cs_id`));
+
+//프로그램 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`program` (
+  `program_id` CHAR(10) NOT NULL,
+  `sport_name` VARCHAR(40) NOT NULL,
+  `program_name` VARCHAR(50) NOT NULL,
+  `day_lecture` VARCHAR(5) NOT NULL,
+  `time_lecture` VARCHAR(20) NOT NULL,
+  `place_lecture` VARCHAR(20) NOT NULL,
+  `tutition_fee` INT(10) NOT NULL,
+  PRIMARY KEY (program_id, sport_name, program_name, day_lecture, time_lecture, place_lecture));
+
+//사물함 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`Locker` (
+  `locker_id` CHAR(5) NOT NULL,
+  `size` VARCHAR(5) NOT NULL,
+  `place_locker` VARCHAR(10) NOT NULL,
+  PRIMARY KEY (`locker_id`));
+
+//셔틀버스 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`shuttlebus` (
+  `bus_id` CHAR(5) NOT NULL,
+  `route_bus` VARCHAR(50) NOT NULL,
+  `max_num` INT(5) NOT NULL,
+  PRIMARY KEY (`bus_id`));
+
+//관계 
+
+//강의 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`lecture` (
+  `id_pro` CHAR(10) NOT NULL,
+  `name_tch` VARCHAR(10) NOT NULL,
+  `name_spr` VARCHAR(40) NOT NULL,
+  `name_pro` VARCHAR(50) NOT NULL,
+  `id_tch` VARCHAR(10) NOT NULL,
+  `day_pro` VARCHAR(5) NOT NULL,
+  `time_pro` VARCHAR(20) NOT NULL,
+  `place_pro` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (id_pro, name_tch, name_spr, name_pro,id_tch, day_pro, time_pro, place_pro));
+//외래키 설정
+ALTER TABLE `Chungmu-sportscenter`.`lecture`
+ADD CONSTRAINT `lecture_ibfk_1`
+  FOREIGN KEY (`id_pro` , `name_spr` , `name_pro` , `day_pro` , `time_pro` , `place_pro`)
+  REFERENCES `Chungmu-sportscenter`.`program` (`program_id` , `sport_name` , `program_name` , `day_lecture` , `time_lecture` , `place_lecture`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; //program 테이블 참조
+ALTER TABLE `Chungmu-sportscenter`.`lecture`
+ADD CONSTRAINT `fk_lecture_1`
+  FOREIGN KEY (name_tch, id_tch)
+  REFERENCES `Chungmu-sportscenter`.`teacher` (name, teacherid)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; //teacher 테이블 참조
+
+//지도 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`learn` (
+  `id_pro` CHAR(10) NOT NULL,
+  `name_tch` VARCHAR(10) NOT NULL,
+  `name_cus` VARCHAR(10) NOT NULL,
+  `id_cus` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`id_pro`, `name_tch`, `name_cus`, `id_cus`));
+
+//조회 및 수강료 조회 테이블 생성
+CREATE TABLE `Chungmu-sportscenter`.`checking` (
+  `id_cus` VARCHAR(20) NOT NULL,
+  `jung_gu` VARCHAR(2) NULL,
+  `numpro_cus` INT(2) NULL,
+  `total_tuition` VARCHAR(45) NULL,
+  PRIMARY KEY (`id_cus`),
+  CONSTRAINT `fk_checking_1`
+    FOREIGN KEY (`id_cus`)
+    REFERENCES `Chungmu-sportscenter`.`customer` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+//문의(QnA) 테이블 생성 및 외래키 설정
+CREATE TABLE `Chungmu-sportscenter`.`QnA` (
+  `id_cs` CHAR(10) NOT NULL,
+  `id_cus` VARCHAR(20) NOT NULL,
+  `q_cus` VARCHAR(1000000) NULL,
+  `ans_cus` VARCHAR(1000000) NULL,
+  PRIMARY KEY (`id_cs`, `id_cus`),
+  INDEX `fk_QnA_cus_idx` (`id_cus` ASC),
+  CONSTRAINT `fk_QnA_cs`
+    FOREIGN KEY ('id_cs')
+    REFERENCES `Chungmu-sportscenter`.`customer_service` ('cs_id')
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_QnA_cus`
+    FOREIGN KEY (`id_cus`)
+    REFERENCES `Chungmu-sportscenter`.`customer` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+//사물함대여 테이블 생성 및 외래키 설정
+CREATE TABLE `Chungmu-sportscenter`.`locker_rental` (
+  `id_cus` VARCHAR(20) NOT NULL,
+  `id_lock` CHAR(5) NOT NULL,
+  `size_lock` VARCHAR(5) NULL,
+  `place_lock` VARCHAR(10) NULL,
+  `rental_fee` INT(10) NULL,
+  PRIMARY KEY (`id_cus`, `id_lock`),
+  CONSTRAINT `fk_locker_rental_cus`
+    FOREIGN KEY (`id_cus`)
+    REFERENCES `Chungmu-sportscenter`.`customer` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+//버스운행 테이블 생성 및 외래키 설정
+CREATE TABLE `Chungmu-sportscenter`.`bus_service` (
+  `id_bus` CHAR(5) NOT NULL,
+  `limit_bus` INT(5) NULL,
+  `num_reg` INT(5) NULL,
+  PRIMARY KEY (`id_bus`),
+  CONSTRAINT `fk_bus_service_bus`
+    FOREIGN KEY (id_bus)
+    REFERENCES `Chungmu-sportscenter`.`shuttlebus` (bus_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+
+
+// 작업 처리 SQL문
+
+//기본 수강료 및 데이터 입력
+INSERT INTO `Chungmu-sportscenter`.`checking` (`id_cus`, `jung_gu`, `numpro_cus`, `total_tuition`) VALUES ('kim123', 'O', '2', '120000');
+INSERT INTO `Chungmu-sportscenter`.`checking` (`id_cus`, `jung_gu`, `numpro_cus`, `total_tuition`) VALUES ('wook4910', 'X', '1', '60000');
+
+// 수강료에 할인율 적용
+update checking
+    -> set total_tuition=total_tuition*0.9
+    -> where jung_gu="O" AND numpro_cus>=2;
+
+//버스운행 신청인원 조회
+//A01 셔틀버스 현재 신청 인원 조회
+select * from bus_service  where id_bus='A01';
+//약수권역 셔틀버스 버스 조회
+select * from shuttlebus where route_bus='약수권역';
+//버스 셔틀 신청
+update bus_service
+    -> set num_reg=num_reg+1
+    -> where id_bus='A01';
+
+//프로그램 정보 검색 : Se01 프로그램 정보 조회
+select * from program where program_id='Se01';
